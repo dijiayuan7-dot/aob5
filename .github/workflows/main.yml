@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,13 +22,12 @@ jobs:
         with:
           gradle-version: '8.7'
 
-      - name: Download Xposed API
+      - name: Build local Xposed API stubs
         run: |
-          mkdir -p app/libs
-          curl -L --fail \
-            -o app/libs/api.jar \
-            https://repo.xposed.info/module/de.robv.android.xposed/api/82/api-82.jar
-          test -f app/libs/api.jar
+          mkdir -p app/libs /tmp/xposed-classes
+          javac -d /tmp/xposed-classes $(find xposed_stub -name '*.java')
+          jar cf app/libs/api.jar -C /tmp/xposed-classes .
+          test -s app/libs/api.jar
           ls -l app/libs/api.jar
 
       - name: Build APK
